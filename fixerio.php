@@ -56,20 +56,24 @@ class FixerIo extends CurrencyRateModule
         if (!parent::install()) {
             return false;
         }
-        $this->registerHook('currencyRates');
-        $this->registerHook('rate');
+        $this->registerHook('actionRetrieveCurrencyRates');
 
         return true;
     }
 
     /**
-     * @param string $baseCurrency Uppercase base currency code
-     *                             Only codes that have been added to the
-     *                             `supportedCurrencies` array will be called.
-     *                             The module will have to accept all currencies
-     *                             from that array as a base.
+     * @param array $params It contains the following values:
+     *                      - `currencies`: `array` of `string`s
+     *                        Uppercase currency codes
+     *                        Only codes that have been added to the
+     *                        `currencies` array should be filled.
+     *                        The module will have to accept all the currencies it provides
+     *                        as a base currency, too. So if it provides `EUR` and `USD`, it should be able to calculate
+     *                        with both `EUR` or `USD` as a base currency and find the exchange rate for the other.
+     *                      - `baseCurrency`: `string`
+     *                        Uppercase base currency code
      *
-     * @return false|array Associate array with all supported currency codes as key (uppercase) and the actual
+     * @return false|array Associate array with all supported and requested currency codes as key (uppercase) and the actual
      *                     amounts as values (floats - be as accurate as you like), e.g.:
      *                     ```php
      *                     [
@@ -77,53 +81,32 @@ class FixerIo extends CurrencyRateModule
      *                         'USD' => 1.343,
      *                     ]
      *                     ```
-     *                     Returns `false`  if there were problems with retrieving the exchange rates
+     *                     Sets a currency as `false` if there were problems with retrieving the exchange rates.
+     *                     This will cause thirty bees to not further process the currency. As of 1.0.x thirty bees will not request
+     *                     other modules to provide the missing rates. This might change in the future.
      *
-     *
-     * @since   1.0.0
-     * @version 1.0.0 Initial version
+     * @since 1.0.1 Introduced as a replacement for `hookCurrencyRates`. All action modules should be prefixed with `action`
      */
-    public function hookCurrencyRates($baseCurrency)
+    public function hookActionRetrieveCurrencyRates($params)
     {
-        if (array_key_exists($baseCurrency, $this->currencyCache)) {
-            return $this->currencyCache[$baseCurrency];
-        }
-
         $guzzle = new GuzzleHttp\Client();
         try {
-            $json = (string) $guzzle->get('http://api.fixer.io/latest')->getBody();
+            $json = (string) $guzzle->get("http://api.fixer.io/latest?base={$params['baseCurrency']}")->getBody();
             $exchangeRates = json_decode($json, true);
             if (!array_key_exists('rates', $exchangeRates)) {
                 return false;
             }
 
-            $this->currencyCache[$baseCurrency] = $exchangeRates['rates'];
+            foreach (array_keys($exchangeRates['rates']) as $currency) {
+                if (!in_array($currency, $params['currencies'])) {
+                    unset($exchangeRates['rates'][$currency]);
+                }
+            }
 
             return $exchangeRates['rates'];
         } catch (Exception $e) {
             return false;
         }
-
-
-    }
-
-    /**
-     * Provide a single exchange rate
-     *
-     * @param string $from
-     * @param string $to
-     *
-     * @return false|float Returns the rate, false if not found
-     */
-    public function hookRate($from, $to)
-    {
-        $exchangeRates = $this->hookCurrencyRates($from);
-
-        if (array_key_exists($to, $exchangeRates)) {
-            return (float) $exchangeRates[$to];
-        }
-
-        return false;
     }
 
     /**
