@@ -1,0 +1,1 @@
+This module regularly fetches exchange rates from the European Central Bank and applies them to the shop's currency exchange rates. Using it, your shop has always up to date exchange rates and can display prices in more than one currency without the risk of losses due to outdated currency conversion.

@@ -1,0 +1,13 @@
+module_name: Fixer.io
+compatible_versions: 1.0.0+
+author: thirty bees
+category: administration
+tags:
+  - payment
+  - currency
+  - exchange rates
+description_short: Provides currency exchange rates from fixer.io. Source: European Central Bank.
+description: description.md
+images:
+  - image-1.png
+license: AFL 3.0
