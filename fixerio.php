@@ -44,7 +44,7 @@ class FixerIo extends CurrencyRateModule
 
         parent::__construct();
 
-        $this->displayName = $this->l('Fixer.io');
+        $this->displayName = $this->l('Fixer.io Module');
         $this->description = $this->l('Provides currency exchange rates from fixer.io. Source: European Central Bank.');
     }
 
