@@ -37,7 +37,7 @@ class FixerIo extends CurrencyRateModule
     {
         $this->name = 'fixerio';
         $this->tab = 'administration';
-        $this->version = '1.0.2';
+        $this->version = '1.0.3';
         $this->author = 'thirty bees';
         $this->need_instance = 0;
         $this->bootstrap = true;
