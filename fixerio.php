@@ -39,7 +39,7 @@ class FixerIo extends CurrencyRateModule
         $this->tab = 'administration';
         $this->version = '1.0.3';
         $this->author = 'thirty bees';
-        $this->need_instance = 0;
+        $this->need_instance = 1;
         $this->bootstrap = true;
 
         parent::__construct();
@@ -47,6 +47,9 @@ class FixerIo extends CurrencyRateModule
         $this->displayName = $this->l('Fixer.io Module');
         $this->description = $this->l('Provides currency exchange rates from fixer.io. Source: European Central Bank.');
         $this->tb_versions_compliancy = '> 1.0.0';
+
+        $this->warning = $this->l('This module went non-functional due to Fixer.io changing their API. This module should be uninstalled/deleted.');
+        $this->warning .= $this->l(' Feature equal replacement is module ecbexchange / ECB Exchange Rate Services.');
     }
 
     /**
